@@ -18,9 +18,9 @@ def games():
         COALESCE(platforms, "Unknown") AS platforms, 
         COALESCE(genres, "Unknown") AS genres
     FROM games
-    LIMIT {page_size} OFFSET {offset}
+    LIMIT ? OFFSET ?
     """
-    games = db.execute(query).fetchall()
+    games = db.execute(query, (page_size, offset)).fetchall()
 
     result = game_to_result(games)
     return result.to_json()
