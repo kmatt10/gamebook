@@ -18,6 +18,7 @@ def games():
         COALESCE(platforms, "Unknown") AS platforms, 
         COALESCE(genres, "Unknown") AS genres
     FROM games
+    ORDER BY metacritic DESC
     LIMIT ? OFFSET ?
     """
     games = db.execute(query, (page_size, offset)).fetchall()
