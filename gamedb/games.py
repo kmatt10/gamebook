@@ -13,9 +13,12 @@ class SearchQuery:
         self.released_before = args.get('released_before', default=None, type=int)
         self.metacritic_min = args.get('metacritic_min', default=None, type=int)
         self.metacritic_max = args.get('metacritic_max', default=None, type=int)
+        self.strict = args.get('strict', default=False, type=bool)
+        
         self.page = max(args.get('page', default=1, type=int),1)
         self.page_size = min(max(args.get('page_size', default=50, type=int),1),100)
         self.offset = (self.page - 1) * self.page_size
+        self.wild_name = f'%{self.name}%' if self.name else None
 
 bp = Blueprint('games', __name__)
 
@@ -53,7 +56,7 @@ def search():
     """
 
     games = db.execute(query, 
-                       (search_args.name, 
+                       (search_args.name if search_args.strict else search_args.wild_name, 
                         search_args.page_size, 
                         search_args.offset)
                        ).fetchall()
