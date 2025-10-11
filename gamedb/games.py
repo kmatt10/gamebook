@@ -19,6 +19,30 @@ class SearchQuery:
         self.page_size = min(max(args.get('page_size', default=50, type=int),1),100)
         self.offset = (self.page - 1) * self.page_size
         self.wild_name = f'%{self.name}%' if self.name else None
+        self._parameter_args = []
+        self._base_query = """SELECT id, name, released, 
+            COALESCE(platforms, "Unknown") AS platforms, 
+            COALESCE(genres, "Unknown") AS genres
+            FROM games WHERE 1=1
+            """
+        
+    def build_query(self):
+        self._parameter_args = []
+        query = self._base_query
+
+        if self.name:
+            query = query + "AND name LIKE ?"
+            self._parameter_args.append(self.name if self.strict else self.wild_name)
+
+        #TODO: Add additional search fields
+
+        query = query + " ORDER BY metacritic DESC LIMIT ? OFFSET ?"
+        self._parameter_args.extend((self.page_size,self.offset))
+        
+        return query
+    
+    def parameter_args(self):
+        return tuple(self._parameter_args)
 
 bp = Blueprint('games', __name__)
 
@@ -45,20 +69,9 @@ def games():
 def search():
     search_args = SearchQuery(request.args)
     db = get_db()
-    query = f"""
-    SELECT id, name, released, 
-        COALESCE(platforms, "Unknown") AS platforms, 
-        COALESCE(genres, "Unknown") AS genres
-    FROM games
-    WHERE name LIKE ?
-    ORDER BY metacritic DESC
-    LIMIT ? OFFSET ?
-    """
 
-    games = db.execute(query, 
-                       (search_args.name if search_args.strict else search_args.wild_name, 
-                        search_args.page_size, 
-                        search_args.offset)
+    games = db.execute(search_args.build_query(), 
+                       search_args.parameter_args()
                        ).fetchall()
     
     result = game_to_result(games)
