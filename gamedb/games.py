@@ -73,6 +73,7 @@ class SearchQuery(QueryBuilder):
 
 bp = Blueprint('games', __name__)
 
+#TODO: Add handling of a direct game id reference
 @bp.route('/games')
 def games():
     game_query = GameQuery(request.args)
