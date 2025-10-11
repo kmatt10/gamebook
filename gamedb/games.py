@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from gamedb.db import get_db, game_to_result
-from gamedb.QueryBuilder import *
+from gamedb.QueryBuilder import GameQuery, SearchQuery
 
 bp = Blueprint('games', __name__)
 
