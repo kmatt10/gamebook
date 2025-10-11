@@ -15,6 +15,10 @@ class QueryBuilder:
 
     def parameter_args(self) -> tuple:
         return tuple(self._parameter_args)
+    
+    def _query_ender(self, query) -> str:
+        self._parameter_args.extend((self.page_size,self.offset))
+        return query + " ORDER BY metacritic DESC LIMIT ? OFFSET ?"
 
 class GameQuery(QueryBuilder):
     def __init__(self, args):
@@ -27,8 +31,7 @@ class GameQuery(QueryBuilder):
 
         #TODO: Add logic for selecting by id
 
-        query = query + " ORDER BY metacritic DESC LIMIT ? OFFSET ?"
-        self._parameter_args.extend((self.page_size,self.offset))
+        query = self._query_ender(query)
 
         return query
 
@@ -62,7 +65,6 @@ class SearchQuery(QueryBuilder):
         if len(self._parameter_args) == 0:
             query = query + " AND 1=0"
 
-        query = query + " ORDER BY metacritic DESC LIMIT ? OFFSET ?"
-        self._parameter_args.extend((self.page_size,self.offset))
+        query = self._query_ender(query)
         
         return query
