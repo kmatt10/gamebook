@@ -1,7 +1,5 @@
-from flask import (
-    Blueprint, request
-)
-from gamedb.db import get_db, game_to_result, GameEntry, Result
+from flask import Blueprint, request
+from gamedb.db import get_db, game_to_result
 from gamedb.QueryBuilder import *
 
 bp = Blueprint('games', __name__)
