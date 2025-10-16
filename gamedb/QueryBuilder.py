@@ -21,15 +21,17 @@ class QueryBuilder:
         return query + " ORDER BY metacritic DESC LIMIT ? OFFSET ?"
 
 class GameQuery(QueryBuilder):
-    def __init__(self, args):
+    def __init__(self, args, str: id = None):
         super().__init__(args)
-        self.id = args.get('id', default = None, type=int)
+        self.id = id
 
     def build_query(self) -> str:
         self._parameter_args = []
         query = self._base_query
 
-        #TODO: Add logic for selecting by id
+        if self.id:
+            query = query + " AND id = ?"
+            self._parameter_args.append(self.id)
 
         query = self._query_ender(query)
 

@@ -4,7 +4,6 @@ from gamedb.QueryBuilder import GameQuery, SearchQuery
 
 bp = Blueprint('games', __name__)
 
-#TODO: Add handling of a direct game id reference
 @bp.route('/games')
 def games():
     game_query = GameQuery(request.args)
@@ -13,6 +12,16 @@ def games():
                        game_query.parameter_args()).fetchall()
 
     result = game_to_result(games)
+    return result.to_json()
+
+@bp.route('/games/<int:game_id>')
+def game_by_id(game_id):
+    db = get_db()
+    game_query = GameQuery(request.args,game_id)
+    game = db.execute(game_query.build_query(),
+                      game_query.parameter_args()).fetchone()
+    
+    result = game_to_result(game)
     return result.to_json()
 
 @bp.route('/search')
